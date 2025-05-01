@@ -1,5 +1,7 @@
 from flask import Flask, jsonify
 from src.bill_utils import get_popular_bills_sql, clean_law_name
+from src.db_config import get_db
+from sqlalchemy import text
 
 app = Flask(__name__)
 
@@ -12,11 +14,19 @@ def home():
 
 @app.route('/api/popular-bills')
 def popular_bills():
-    # 這裡之後會加入資料庫查詢
-    return jsonify({
-        "message": "熱門法案列表",
-        "data": []
-    })
+    try:
+        db = next(get_db())
+        result = db.execute(text(get_popular_bills_sql()))
+        bills = [dict(row) for row in result]
+        return jsonify({
+            "message": "熱門法案列表",
+            "data": bills
+        })
+    except Exception as e:
+        return jsonify({
+            "message": "發生錯誤",
+            "error": str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True) 
