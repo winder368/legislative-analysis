@@ -4,7 +4,9 @@ from src.db_config import get_db
 from sqlalchemy import text
 import os
 
-app = Flask(__name__)
+# 設定模板目錄的絕對路徑
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
+app = Flask(__name__, template_folder=template_dir)
 
 @app.route('/')
 def home():
@@ -30,5 +32,5 @@ def popular_bills():
 
 if __name__ == '__main__':
     # 確保 templates 目錄存在
-    os.makedirs('templates', exist_ok=True)
+    os.makedirs(template_dir, exist_ok=True)
     app.run(debug=True) 
