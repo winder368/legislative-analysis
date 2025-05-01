@@ -53,10 +53,26 @@ class BillAnalyzer:
         Returns:
             str: 法律名稱
         """
-        # 移除「審查」、「審議」等字樣
+        # 移除引號和標點符號
         bill_name = re.sub(r'[「」『』]', '', bill_name)
         bill_name = re.sub(r'[，。、；：].*$', '', bill_name)
+        
+        # 移除常見的修飾詞
         bill_name = re.sub(r'審查|審議|決議|函請|研處|研議|研商|建請|建議|建言|提案|草案|修正案|修正草案|修正條文|部分條文', '', bill_name)
+        
+        # 特殊處理某些法律名稱
+        special_laws = {
+            r'刑法': '中華民國刑法',
+            r'所得稅法': '所得稅法',
+            r'國土計畫法': '國土計畫法',
+            r'環境基本法': '環境基本法',
+            r'公務人員退休資遣撫卹法': '公務人員退休資遣撫卹法',
+            r'性別平等工作法': '性別平等工作法'
+        }
+        
+        for pattern, replacement in special_laws.items():
+            if re.search(pattern, bill_name):
+                return replacement
         
         # 常見的法律名稱結尾
         patterns = [
@@ -66,8 +82,16 @@ class BillAnalyzer:
         for pattern in patterns:
             match = re.search(pattern, bill_name)
             if match:
-                return (match.group(1) + match.group(2)).strip()
-        return bill_name.strip()
+                law_name = (match.group(1) + match.group(2)).strip()
+                # 移除法律名稱後面的數字
+                law_name = re.sub(r'\s*\d+\s*$', '', law_name)
+                return law_name
+                
+        # 如果沒有匹配到任何模式，返回清理後的名稱
+        cleaned_name = bill_name.strip()
+        # 移除末尾的數字
+        cleaned_name = re.sub(r'\s*\d+\s*$', '', cleaned_name)
+        return cleaned_name
     
     def extract_article_numbers(self, bill_name: str) -> List[int]:
         """從提案名稱中提取條號

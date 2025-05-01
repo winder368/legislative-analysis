@@ -4,28 +4,13 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
 .env
 .venv
+env/
 venv/
 ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -41,6 +26,10 @@ ENV/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# 資料庫
+*.db
+*.sqlite3
 
 # Project specific
 data/*.db

@@ -1,0 +1,194 @@
+:root {
+    /* 政黨顏色 */
+    --color-kmt: #0000FF;
+    --color-tpp: #87CEEB;
+    --color-dpp: #008000;
+    --color-np: #FFFF00;
+    --color-npp: #FFD700;
+    --color-tsp: #8B0000;
+    --color-other: #808080;
+    --color-org: #6c757d;
+    
+    /* 狀態顏色 */
+    --color-pending-bg: #fff3cd;
+    --color-pending-text: #856404;
+    --color-reviewing-bg: #cce5ff;
+    --color-reviewing-text: #004085;
+    --color-completed-bg: #d4edda;
+    --color-completed-text: #155724;
+    --color-rejected-bg: #f8d7da;
+    --color-rejected-text: #721c24;
+}
+
+.article-card {
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
+
+.article-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.article-header {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.article-header:hover {
+    background-color: #e9ecef;
+}
+
+.article-content {
+    padding: 1rem;
+    display: none;
+}
+
+.article-content.show {
+    display: block;
+}
+
+.bills-count {
+    font-size: 1.1em;
+    color: #6c757d;
+    background-color: #e9ecef;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.bill-item {
+    border-left: 3px solid #0d6efd;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.bill-item:hover {
+    background-color: #f8f9fa;
+}
+
+.bill-meta {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.proposer-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.proposer-tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    margin: 0.2rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* 政黨標籤樣式 */
+.proposer-tag.kmt {
+    background-color: var(--color-kmt);
+    color: white;
+}
+
+.proposer-tag.tpp {
+    background-color: var(--color-tpp);
+    color: black;
+}
+
+.proposer-tag.dpp {
+    background-color: var(--color-dpp);
+    color: white;
+}
+
+.proposer-tag.np {
+    background-color: var(--color-np);
+    color: black;
+}
+
+.proposer-tag.npp {
+    background-color: var(--color-npp);
+    color: black;
+}
+
+.proposer-tag.tsp {
+    background-color: var(--color-tsp);
+    color: white;
+}
+
+.proposer-tag.other {
+    background-color: var(--color-other);
+    color: white;
+}
+
+.org-tag {
+    background-color: var(--color-org);
+    color: white;
+}
+
+.cosignatory-tag {
+    background-color: #e9ecef;
+    color: black;
+}
+
+/* 狀態標籤樣式 */
+.status-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.9em;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.status-pending {
+    background-color: var(--color-pending-bg);
+    color: var(--color-pending-text);
+}
+
+.status-reviewing {
+    background-color: var(--color-reviewing-bg);
+    color: var(--color-reviewing-text);
+}
+
+.status-completed {
+    background-color: var(--color-completed-bg);
+    color: var(--color-completed-text);
+}
+
+.status-rejected {
+    background-color: var(--color-rejected-bg);
+    color: var(--color-rejected-text);
+}
+
+.bill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.bill-title {
+    margin: 0;
+    flex: 1;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    margin-left: 1rem;
+}
+
+.article-header[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+} 
