@@ -7,24 +7,22 @@ import os
 class Database:
     """資料庫管理類"""
     
-    def __init__(self, db_path: str = "data/bills.db"):
-        """初始化資料庫連接
+    def __init__(self):
+        """初始化資料庫連接"""
+        # 獲取當前腳本的目錄
+        current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
-        Args:
-            db_path: 資料庫檔案路徑
-        """
-        # 確保資料目錄存在
-        if not db_path.startswith('/'):
-            # 使用絕對路徑
-            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            db_path = os.path.join(current_dir, db_path)
-        
-        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-        print(f"連接資料庫: {db_path}")
-        
-        self.db_path = db_path
-        self.conn = sqlite3.connect(db_path)
+        # 確保 data 目錄存在
+        data_dir = os.path.join(current_dir, 'data')
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+            
+        self.db_path = os.path.join(data_dir, 'bills.db')
+        print(f"連接資料庫: {os.path.abspath(self.db_path)}")
+        self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
+        
+        # 確保資料表存在
         self.create_tables()
     
     def create_tables(self):
@@ -34,51 +32,36 @@ class Database:
         # 建立法案資料表
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS bills (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            term TEXT,                    -- 屆別
-            sessionPeriod TEXT,           -- 會期
-            sessionTimes TEXT,            -- 會次
-            meetingTimes TEXT,            -- 臨時會會次
-            billNo TEXT,                  -- 議案編號
-            billName TEXT,                -- 提案名稱
-            billOrg TEXT,                 -- 提案單位/委員
-            billProposer TEXT,            -- 提案人
-            billCosignatory TEXT,         -- 連署人
-            billStatus TEXT,              -- 議案狀態
-            pdfUrl TEXT,                  -- PDF檔案位置
-            docUrl TEXT,                  -- DOC檔案位置
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(term, billNo)          -- 確保不會重複儲存同一個提案
+            billNo TEXT,
+            billName TEXT,
+            billOrg TEXT,
+            billProposer TEXT,
+            billCosignatory TEXT,
+            term TEXT,
+            sessionPeriod TEXT,
+            sessionTimes TEXT,
+            billStatus TEXT,
+            pdfUrl TEXT,
+            docUrl TEXT,
+            PRIMARY KEY (term, billNo)
         )
         """)
         
-        # 建立立法委員資料表
+        # 建立立委資料表
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS legislators (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            term TEXT,                    -- 屆別
-            name TEXT,                    -- 姓名
-            party TEXT,                   -- 黨籍
-            party_color TEXT,             -- 政黨顏色
-            constituency TEXT,            -- 選區
-            committee TEXT,               -- 委員會
-            education TEXT,               -- 學歷
-            experience TEXT,              -- 經歷
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(term, name)            -- 確保不會重複儲存同一個委員
+            name TEXT,
+            party TEXT,
+            term TEXT,
+            party_color TEXT
         )
         """)
         
         # 建立索引以加速查詢
-        try:
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_name ON bills(billName)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_term_session ON bills(term, sessionPeriod)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_name ON legislators(name)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_term ON legislators(term)")
-        except sqlite3.Error as e:
-            print(f"建立索引時發生錯誤: {e}")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_name ON bills(billName)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_term_session ON bills(term, sessionPeriod)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_name ON legislators(name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_term ON legislators(term)")
         
         self.conn.commit()
     

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ law_name }} - 法案搜尋結果</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .bill-card {
+            margin-bottom: 1rem;
+            border-left: 4px solid #007bff;
+        }
+        .org-tag { border-left-color: #28a745; }
+        .kmt-tag { border-left-color: #007bff; }
+        .dpp-tag { border-left-color: #28a745; }
+        .tpp-tag { border-left-color: #ffc107; }
+        .npp-tag { border-left-color: #dc3545; }
+        .unknown-tag { border-left-color: #6c757d; }
+        .article-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .bill-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .bill-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        .bill-links a {
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">首頁</a></li>
+                <li class="breadcrumb-item active">搜尋結果</li>
+            </ol>
+        </nav>
+
+        <h1 class="mb-4">{{ law_name }}</h1>
+
+        {% if message %}
+            <div class="alert alert-info">{{ message }}</div>
+        {% else %}
+            <p class="text-muted mb-4">共找到 {{ total }} 筆相關法案</p>
+
+            {% for article in articles %}
+                <div class="article-section">
+                    <div class="article-header">
+                        <h2 class="h4">{{ article.article }}</h2>
+                        <span class="bill-count">{{ article.bills_count }} 筆修正案</span>
+                    </div>
+
+                    {% for bill in article.bills %}
+                        <div class="card bill-card {{ bill.party_class }}-tag">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">{{ bill.billName }}</h3>
+                                <div class="bill-meta">
+                                    <span class="me-3">提案人：{{ bill.billProposer or '無' }}</span>
+                                    <span class="me-3">提案機關：{{ bill.billOrg or '無' }}</span>
+                                    <span class="me-3">屆期：{{ bill.term }}屆</span>
+                                    <span>會期：{{ bill.sessionPeriod }}期{{ bill.sessionTimes }}次</span>
+                                </div>
+                                <div class="bill-links">
+                                    {% if bill.pdfUrl %}
+                                        <a href="{{ bill.pdfUrl }}" target="_blank" class="card-link">
+                                            <i class="bi bi-file-pdf"></i> PDF
+                                        </a>
+                                    {% endif %}
+                                    {% if bill.docUrl %}
+                                        <a href="{{ bill.docUrl }}" target="_blank" class="card-link">
+                                            <i class="bi bi-file-text"></i> DOC
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
