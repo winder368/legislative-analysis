@@ -12,6 +12,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Backup files
+data/*_backup_*.json
+!data/bills.db
+
 # IDE
 .idea/
 .vscode/

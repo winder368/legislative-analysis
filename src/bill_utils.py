@@ -14,11 +14,28 @@ def get_popular_bills_sql() -> str:
                 WHEN billName LIKE '%性別平等工作法%' THEN '性別平等工作法'
                 WHEN billName LIKE '%貨物稅條例%' THEN '貨物稅條例'
                 WHEN billName LIKE '「%」%' THEN
-                    SUBSTR(
-                        SUBSTR(billName, INSTR(billName, '「') + 1),
-                        1,
-                        INSTR(SUBSTR(billName, INSTR(billName, '「') + 1), '」') - 1
-                    )
+                    CASE
+                        WHEN SUBSTR(
+                            SUBSTR(billName, INSTR(billName, '「') + 1),
+                            1,
+                            INSTR(SUBSTR(billName, INSTR(billName, '「') + 1), '」') - 1
+                        ) LIKE '%部分條文%' THEN
+                            REPLACE(
+                                SUBSTR(
+                                    SUBSTR(billName, INSTR(billName, '「') + 1),
+                                    1,
+                                    INSTR(SUBSTR(billName, INSTR(billName, '「') + 1), '部分條文') - 1
+                                ),
+                                '修正草案',
+                                ''
+                            )
+                        ELSE
+                            SUBSTR(
+                                SUBSTR(billName, INSTR(billName, '「') + 1),
+                                1,
+                                INSTR(SUBSTR(billName, INSTR(billName, '「') + 1), '」') - 1
+                            )
+                    END
                 ELSE billName
             END as raw_name
         FROM bills
@@ -27,6 +44,19 @@ def get_popular_bills_sql() -> str:
     CleanBillNames AS (
         SELECT 
             CASE
+                WHEN raw_name = '中華民國刑法' THEN '中華民國刑法'
+                WHEN raw_name = '所得稅法' THEN '所得稅法'
+                WHEN raw_name = '國土計畫法' THEN '國土計畫法'
+                WHEN raw_name = '環境基本法' THEN '環境基本法'
+                WHEN raw_name = '公務人員退休資遣撫卹法' THEN '公務人員退休資遣撫卹法'
+                WHEN raw_name = '性別平等工作法' THEN '性別平等工作法'
+                WHEN raw_name = '貨物稅條例' THEN '貨物稅條例'
+                WHEN raw_name LIKE '%部分條文%' THEN
+                    REPLACE(
+                        SUBSTR(raw_name, 1, INSTR(raw_name, '部分條文') - 1),
+                        '修正草案',
+                        ''
+                    )
                 WHEN raw_name LIKE '%第%條%' THEN
                     SUBSTR(raw_name, 1, INSTR(raw_name, '第') - 1)
                 WHEN raw_name LIKE '%修正條文%' THEN
@@ -66,6 +96,18 @@ def clean_law_name(name: str) -> str:
     # 特殊處理某些法案
     if '刑法' in name and '陸海空軍刑法' not in name:
         return '中華民國刑法'
+    if '民法' in name:
+        return '民法'
+    if '所得稅法' in name:
+        return '所得稅法'
+    if '國土計畫法' in name:
+        return '國土計畫法'
+    if '環境基本法' in name:
+        return '環境基本法'
+    if '公務人員退休資遣撫卹法' in name:
+        return '公務人員退休資遣撫卹法'
+    if '性別平等工作法' in name:
+        return '性別平等工作法'
     if '貨物稅條例' in name:
         return '貨物稅條例'
     
@@ -78,6 +120,8 @@ def clean_law_name(name: str) -> str:
             
     # 移除條號（如果還有的話）
     if '第' in name and '條' in name:
-        name = name[:name.index('第')].strip()
+        # 找到最後一個「第」的位置
+        last_index = name.rindex('第')
+        name = name[:last_index].strip()
         
     return name 
