@@ -1,16 +1,16 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from src.bill_utils import get_popular_bills_sql, clean_law_name
 from src.db_config import get_db
 from sqlalchemy import text
+import os
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return jsonify({
-        "message": "法案分析系統 API",
-        "status": "運作中"
-    })
+    return render_template('index.html', 
+                         title="法案分析系統",
+                         message="歡迎使用法案分析系統")
 
 @app.route('/api/popular-bills')
 def popular_bills():
@@ -29,4 +29,6 @@ def popular_bills():
         }), 500
 
 if __name__ == '__main__':
+    # 確保 templates 目錄存在
+    os.makedirs('templates', exist_ok=True)
     app.run(debug=True) 
