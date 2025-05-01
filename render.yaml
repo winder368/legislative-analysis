@@ -16,3 +16,15 @@ services:
       - type: postgresql
         name: legislative-analysis-db
         ipAllowList: [] # 允許所有 IP 
+
+  - type: cron
+    name: update-bills
+    env: python
+    schedule: "0 5 * * *"  # 每天凌晨 5 點執行
+    buildCommand: pip install -r requirements.txt
+    startCommand: python src/update_bills.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: DATABASE_URL
+        sync: false # 資料庫連線字串將從 Render 儀表板手動設定 
