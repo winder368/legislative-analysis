@@ -10,5 +10,9 @@ services:
       - key: FLASK_ENV
         value: production
       - key: DATABASE_URL
-        value: sqlite:///bills.db
-    autoDeploy: true 
+        sync: false # 資料庫連線字串將從 Render 儀表板手動設定
+    autoDeploy: true
+    dependencies:
+      - type: postgresql
+        name: legislative-analysis-db
+        ipAllowList: [] # 允許所有 IP 
