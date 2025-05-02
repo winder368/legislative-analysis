@@ -94,22 +94,126 @@ def clean_law_name(name: str) -> str:
     name = name.strip('「」')
     
     # 特殊處理某些法案
+    if '陸海空軍刑法' in name or '軍刑法' in name:
+        return '陸海空軍刑法'
     if '刑法' in name and '陸海空軍刑法' not in name:
         return '中華民國刑法'
-    if '民法' in name:
+    if '民法' in name and '國民法官法' not in name and '入出國及移民法' not in name:
         return '民法'
+    if '國民法官法' in name:
+        return '國民法官法'
+    if '入出國及移民法' in name:
+        return '入出國及移民法'
     if '所得稅法' in name:
         return '所得稅法'
     if '國土計畫法' in name:
         return '國土計畫法'
     if '環境基本法' in name:
         return '環境基本法'
-    if '公務人員退休資遣撫卹法' in name:
+    if '公務人員退休資遣撫卹法' in name or '退撫法' in name:
         return '公務人員退休資遣撫卹法'
-    if '性別平等工作法' in name:
+    if '性別平等工作法' in name or '性工法' in name:
         return '性別平等工作法'
     if '貨物稅條例' in name:
         return '貨物稅條例'
+    if '勞動基準法' in name or '勞基法' in name:
+        return '勞動基準法'
+    if '就業服務法' in name or '就服法' in name:
+        return '就業服務法'
+    if '全民健康保險法' in name or '健保法' in name:
+        return '全民健康保險法'
+    if '社會秩序維護法' in name or '社維法' in name:
+        return '社會秩序維護法'
+    if '道路交通管理處罰條例' in name or '道交條例' in name:
+        return '道路交通管理處罰條例'
+    if '消費者保護法' in name or '消保法' in name:
+        return '消費者保護法'
+    if '著作權法' in name:
+        return '著作權法'
+    if '商標法' in name:
+        return '商標法'
+    if '專利法' in name:
+        return '專利法'
+    if '公司法' in name:
+        return '公司法'
+    if '證券交易法' in name or '證交法' in name:
+        return '證券交易法'
+    if '銀行法' in name:
+        return '銀行法'
+    if '保險法' in name:
+        return '保險法'
+    if '信託法' in name:
+        return '信託法'
+    if '票據法' in name:
+        return '票據法'
+    if '海商法' in name:
+        return '海商法'
+    if '破產法' in name:
+        return '破產法'
+    if '強制執行法' in name:
+        return '強制執行法'
+    if '民事訴訟法' in name or '民訴' in name:
+        return '民事訴訟法'
+    if '刑事訴訟法' in name or '刑訴' in name:
+        return '刑事訴訟法'
+    if '行政訴訟法' in name or '行訴' in name:
+        return '行政訴訟法'
+    if '行政程序法' in name or '行程' in name:
+        return '行政程序法'
+    if '國家賠償法' in name or '國賠' in name:
+        return '國家賠償法'
+    if '公務員服務法' in name or '服勤法' in name:
+        return '公務員服務法'
+    if '公務人員任用法' in name or '任用條例' in name:
+        return '公務人員任用法'
+    if '公務人員考績法' in name or '考績法' in name:
+        return '公務人員考績法'
+    if '公務人員保障法' in name or '保障法' in name:
+        return '公務人員保障法'
+    if '公務人員陞遷法' in name or '陞遷法' in name:
+        return '公務人員陞遷法'
+    if '公務人員撫卹法' in name or '撫卹法' in name:
+        return '公務人員撫卹法'
+    if '公務人員保險法' in name or '公保法' in name:
+        return '公務人員保險法'
+    if '公務人員俸給法' in name or '俸給法' in name:
+        return '公務人員俸給法'
+    if '公務人員交代條例' in name or '交代條例' in name:
+        return '公務人員交代條例'
+    if '公務人員財產申報法' in name or '財產申報法' in name:
+        return '公務人員財產申報法'
+    if '公務人員行政中立法' in name or '行政中立法' in name:
+        return '公務人員行政中立法'
+    if '公務人員協會法' in name or '協會法' in name:
+        return '公務人員協會法'
+    if '公務人員訓練進修法' in name or '訓練進修法' in name:
+        return '公務人員訓練進修法'
+    if '公務人員懲戒法' in name or '公懲法' in name:
+        return '公務人員懲戒法'
+    if '公務人員考績法施行細則' in name or '考績法施行細則' in name:
+        return '公務人員考績法施行細則'
+    if '公務人員退休法施行細則' in name or '退休法施行細則' in name:
+        return '公務人員退休法施行細則'
+    if '公務人員撫卹法施行細則' in name or '撫卹法施行細則' in name:
+        return '公務人員撫卹法施行細則'
+    if '公務人員保險法施行細則' in name or '公保法施行細則' in name:
+        return '公務人員保險法施行細則'
+    if '公務人員俸給法施行細則' in name or '俸給法施行細則' in name:
+        return '公務人員俸給法施行細則'
+    if '公務人員請假規則施行細則' in name or '請假規則施行細則' in name:
+        return '公務人員請假規則施行細則'
+    if '公務人員交代條例施行細則' in name or '交代條例施行細則' in name:
+        return '公務人員交代條例施行細則'
+    if '公務人員財產申報法施行細則' in name or '財產申報法施行細則' in name:
+        return '公務人員財產申報法施行細則'
+    if '公務人員行政中立法施行細則' in name or '行政中立法施行細則' in name:
+        return '公務人員行政中立法施行細則'
+    if '公務人員協會法施行細則' in name or '協會法施行細則' in name:
+        return '公務人員協會法施行細則'
+    if '公務人員訓練進修法施行細則' in name or '訓練進修法施行細則' in name:
+        return '公務人員訓練進修法施行細則'
+    if '公務人員懲戒法施行細則' in name or '懲戒法施行細則' in name:
+        return '公務人員懲戒法施行細則'
     
     # 依序移除後綴
     suffixes = ['修正條文', '修正草案', '條文', '草案']
