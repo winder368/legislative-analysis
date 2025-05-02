@@ -56,10 +56,10 @@
                     <div class="col-md-4">
                         <label for="term" class="form-label">屆別</label>
                         <select class="form-select" id="term" name="term">
+                            <option value="">全部屆別</option>
                             {% for term in terms %}
                             <option value="{{ term }}">第 {{ term }} 屆</option>
                             {% endfor %}
-                            <option value="">全部屆別</option>
                         </select>
                     </div>
                     <div class="col-md-2">
