@@ -25,17 +25,16 @@ def main():
             print("沒有新資料需要下載")
             return
             
+        # 生成備份檔案名稱（包含時間戳）並儲存為 JSON 檔案作為備份
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"data/bills_backup_{timestamp}.json"
+
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(bills, f, ensure_ascii=False, indent=2)
+
         # 將資料存入資料庫
         print(f"正在將 {len(bills)} 筆資料存入資料庫...")
         db.save_bills(bills)
-        
-        # 生成備份檔案名稱（包含時間戳）
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"data/bills_backup_{timestamp}.json"
-        
-        # 將資料同時儲存為 JSON 檔案作為備份
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(bills, f, ensure_ascii=False, indent=2)
         
         # 顯示資料庫統計資訊
         total_bills = db.get_bills_count()

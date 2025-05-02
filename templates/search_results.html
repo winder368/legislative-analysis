@@ -9,14 +9,15 @@
     <style>
         .bill-card {
             margin-bottom: 1rem;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid #6c757d;  /* 預設灰色 */
             position: relative;
         }
         .org-tag { border-left-color: #28a745; }  /* 行政院 - 綠色 */
         .kmt-tag { border-left-color: #007bff; }  /* 國民黨 - 藍色 */
         .dpp-tag { border-left-color: #28a745; }  /* 民進黨 - 綠色 */
-        .tpp-tag { border-left-color: #ffc107; }  /* 民眾黨 - 黃色 */
-        .npp-tag { border-left-color: #dc3545; }  /* 時代力量 - 紅色 */
+        .tpp-tag { border-left-color: #17a2b8; }  /* 民眾黨 - 淺藍色 */
+        .npp-tag { border-left-color: #ffd700; }  /* 時代力量 - 深黃色 */
+        .np-tag { border-left-color: #ffeb3b; }   /* 新黨 - 淺黃色 */
         .unknown-tag { border-left-color: #6c757d; }  /* 未知 - 灰色 */
         .bill-header {
             cursor: pointer;
@@ -84,8 +85,8 @@
             color: #155724;
         }
         .proposer-tag.tpp-tag {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #d1ecf1;
+            color: #0c5460;
         }
         .proposer-tag.npp-tag {
             background-color: #f8d7da;
@@ -94,6 +95,10 @@
         .proposer-tag.unknown-tag {
             background-color: #e9ecef;
             color: #6c757d;
+        }
+        .proposer-tag.noparty-tag {
+            background-color: #f8f9fa;
+            color: #343a40;
         }
         .bill-meta {
             margin-top: 1rem;
@@ -128,7 +133,10 @@
         }
         .party-bar.dpp { background-color: #28a745; }
         .party-bar.kmt { background-color: #007bff; }
-        .party-bar.tpp { background-color: #ffc107; color: #000; }
+        .party-bar.tpp { background-color: #17a2b8; }
+        .party-bar.npp { background-color: #ffd700; }  /* 時代力量 - 深黃色 */
+        .party-bar.np { background-color: #ffeb3b; }   /* 新黨 - 淺黃色 */
+        .party-bar.noparty { background-color: #343a40; }
         .party-bar.other { background-color: #6c757d; }
         .party-legend {
             display: flex;
@@ -168,7 +176,8 @@
         }
         .member-tag.dpp { background-color: #d4edda; color: #155724; }
         .member-tag.kmt { background-color: #cce5ff; color: #004085; }
-        .member-tag.tpp { background-color: #fff3cd; color: #856404; }
+        .member-tag.tpp { background-color: #d1ecf1; color: #0c5460; }
+        .member-tag.noparty { background-color: #f8f9fa; color: #343a40; }
         .member-tag.other { background-color: #e9ecef; color: #6c757d; }
     </style>
 </head>
@@ -287,6 +296,21 @@
                                                         {{ bill.party_stats.民眾黨 }}
                                                     </div>
                                                     {% endif %}
+                                                    {% if bill.party_stats.時代力量 %}
+                                                    <div class="party-bar npp" style="width: {{ (bill.party_stats.時代力量 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.時代力量 }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if bill.party_stats.新黨 %}
+                                                    <div class="party-bar np" style="width: {{ (bill.party_stats.新黨 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.新黨 }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if bill.party_stats.無黨籍 %}
+                                                    <div class="party-bar noparty" style="width: {{ (bill.party_stats.無黨籍 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.無黨籍 }}
+                                                    </div>
+                                                    {% endif %}
                                                     {% if bill.party_stats.其他 %}
                                                     <div class="party-bar other" style="width: {{ (bill.party_stats.其他 / total * 100) | round }}%">
                                                         {{ bill.party_stats.其他 }}
@@ -297,22 +321,48 @@
                                             
                                             <!-- 圖例 -->
                                             <div class="party-legend">
+                                                {% if bill.party_stats.民進黨 %}
                                                 <div class="legend-item">
                                                     <div class="legend-color" style="background-color: #28a745;"></div>
                                                     <span>民進黨</span>
                                                 </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.國民黨 %}
                                                 <div class="legend-item">
                                                     <div class="legend-color" style="background-color: #007bff;"></div>
                                                     <span>國民黨</span>
                                                 </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.民眾黨 %}
                                                 <div class="legend-item">
-                                                    <div class="legend-color" style="background-color: #ffc107;"></div>
+                                                    <div class="legend-color" style="background-color: #17a2b8;"></div>
                                                     <span>民眾黨</span>
                                                 </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.時代力量 %}
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #ffd700;"></div>
+                                                    <span>時代力量</span>
+                                                </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.新黨 %}
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #ffeb3b;"></div>
+                                                    <span>新黨</span>
+                                                </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.無黨籍 %}
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #343a40;"></div>
+                                                    <span>無黨籍</span>
+                                                </div>
+                                                {% endif %}
+                                                {% if bill.party_stats.其他 %}
                                                 <div class="legend-item">
                                                     <div class="legend-color" style="background-color: #6c757d;"></div>
                                                     <span>其他</span>
                                                 </div>
+                                                {% endif %}
                                             </div>
                                         </div>
 
