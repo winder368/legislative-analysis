@@ -39,7 +39,7 @@ def cn_to_arab(cn_str):
         
     # 如果字串中包含非中文數字，返回原始字串
     for char in cn_str:
-        if char not in cn_num and char not in ['百', '千', '萬']:
+        if char not in cn_num and char not in ['百', '千', '萬', '零']:
             return cn_str
             
     # 處理特殊情況
@@ -55,6 +55,20 @@ def cn_to_arab(cn_str):
         if len(cn_str) == 1:
             return 10
         return 10 + cn_to_arab(cn_str[1:])
+
+    # 處理帶「千」的數字
+    if '千' in cn_str:
+        parts = cn_str.split('千')
+        base = cn_num[parts[0]] * 1000
+        if not parts[1]:
+            return base
+        if parts[1].startswith('零'):
+            # 處理「一千零八」這樣的情況
+            remaining = parts[1][1:]
+            if remaining:
+                return base + cn_to_arab(remaining)
+            return base
+        return base + cn_to_arab(parts[1])
         
     # 處理帶「百」的數字
     if '百' in cn_str:
@@ -63,7 +77,10 @@ def cn_to_arab(cn_str):
         if not parts[1]:
             return base
         if parts[1].startswith('零'):
-            return base + cn_to_arab(parts[1][1:])
+            remaining = parts[1][1:]
+            if remaining:
+                return base + cn_to_arab(remaining)
+            return base
         return base + cn_to_arab(parts[1])
         
     # 處理帶「十」的數字
@@ -301,33 +318,202 @@ def extract_article_numbers(bill_name: str) -> list:
     
     return articles
 
-def get_party_info(proposer: str) -> tuple:
-    """從提案人資訊中獲取政黨資訊
+def normalize_name(name: str) -> str:
+    """標準化人名格式
+    
+    Args:
+        name: 原始人名
+        
+    Returns:
+        str: 標準化後的人名
+    """
+    # 移除全形空格
+    name = name.replace('　', '')
+    # 移除半形空格
+    name = name.replace(' ', '')
+    # 移除換行符號
+    name = name.replace('\n', '')
+    return name
+
+def extract_names(names_str: str) -> list:
+    """從字串中提取人名列表
+    
+    Args:
+        names_str: 包含多個姓名的字串
+        
+    Returns:
+        list: 人名列表
+    """
+    if not names_str:
+        return []
+    
+    # 移除全形空格和換行符號
+    names_str = names_str.replace('　', ' ').replace('\n', ' ')
+    
+    # 使用正則表達式匹配人名
+    # 匹配模式：
+    # 1. 中文名字（2-4個中文字）
+    # 2. 原住民名字（中文+英文）
+    # 3. 英文名字
+    name_pattern = r'([\u4e00-\u9fa5]{2,4}(?:[A-Za-z]+)?)|([A-Za-z]+)'
+    matches = re.finditer(name_pattern, names_str)
+    
+    names = []
+    for match in matches:
+        name = match.group(0).strip()
+        if name and len(name) >= 2:  # 確保名字至少有2個字
+            names.append(name)
+    
+    # 如果沒有找到任何名字，嘗試使用分隔符號分割
+    if not names:
+        for sep in ['、', '，', ',', ' ']:
+            if sep in names_str:
+                parts = [part.strip() for part in names_str.split(sep)]
+                names.extend([part for part in parts if part and len(part) >= 2])
+                break
+    
+    # 移除重複的名字
+    return list(dict.fromkeys(names))
+
+def count_party_members(names_str: str) -> dict:
+    """統計名單中各黨籍人數
+    
+    Args:
+        names_str: 包含多個姓名的字串
+        
+    Returns:
+        dict: 各黨籍人數統計
+    """
+    if not names_str:
+        return {}
+        
+    # 立委黨籍對照表（第11屆）
+    legislators = {
+        # 民進黨籍立委
+        '伍麗華': '民進黨', '何欣純': '民進黨', '劉建國': '民進黨', '吳思瑤': '民進黨',
+        '吳沛憶': '民進黨', '吳琪銘': '民進黨', '吳秉叡': '民進黨', '張宏陸': '民進黨',
+        '張雅琳': '民進黨', '徐富癸': '民進黨', '李坤城': '民進黨', '李昆澤': '民進黨',
+        '李柏毅': '民進黨', '林俊憲': '民進黨', '林宜瑾': '民進黨', '林岱樺': '民進黨',
+        '林月琴': '民進黨', '林楚茵': '民進黨', '林淑芬': '民進黨', '柯建銘': '民進黨',
+        '楊曜': '民進黨', '沈伯洋': '民進黨', '沈發惠': '民進黨', '洪申翰': '民進黨',
+        '游錫堃': '民進黨', '王世堅': '民進黨', '王定宇': '民進黨', '王正旭': '民進黨',
+        '王美惠': '民進黨', '王義川': '民進黨', '羅美玲': '民進黨', '范雲': '民進黨',
+        '莊瑞雄': '民進黨', '蔡其昌': '民進黨', '蔡易餘': '民進黨', '蘇巧慧': '民進黨',
+        '許智傑': '民進黨', '賴惠員': '民進黨', '賴瑞隆': '民進黨', '邱志偉': '民進黨',
+        '邱議瑩': '民進黨', '郭國文': '民進黨', '郭昱晴': '民進黨', '鍾佳濱': '民進黨',
+        '陳亭妃': '民進黨', '陳俊宇': '民進黨', '陳冠廷': '民進黨', '陳培瑜': '民進黨',
+        '陳瑩': '民進黨', '陳秀寳': '民進黨', '陳素月': '民進黨', '黃捷': '民進黨',
+        '黃秀芳': '民進黨',
+        
+        # 國民黨籍立委
+        '丁學忠': '國民黨', '傅崐萁': '國民黨', '吳宗憲': '國民黨', '呂玉玲': '國民黨',
+        '廖偉翔': '國民黨', '廖先翔': '國民黨', '張嘉郡': '國民黨', '張智倫': '國民黨',
+        '徐巧芯': '國民黨', '徐欣瑩': '國民黨', '李彥秀': '國民黨', '林倩綺': '國民黨',
+        '林德福': '國民黨', '林思銘': '國民黨', '林沛祥': '國民黨', '柯志恩': '國民黨',
+        '楊瓊瓔': '國民黨', '江啟臣': '國民黨', '洪孟楷': '國民黨', '涂權吉': '國民黨',
+        '游顥': '國民黨', '牛煦庭': '國民黨', '王育敏': '國民黨', '王鴻薇': '國民黨',
+        '盧縣一': '國民黨', '羅廷瑋': '國民黨', '羅明才': '國民黨', '羅智強': '國民黨',
+        '翁曉玲': '國民黨', '萬美玲': '國民黨', '葉元之': '國民黨', '葛如鈞': '國民黨',
+        '蘇清泉': '國民黨', '許宇甄': '國民黨', '謝衣鳯': '國民黨', '謝龍介': '國民黨',
+        '賴士葆': '國民黨', '邱若華': '國民黨', '邱鎮軍': '國民黨', '鄭天財': '國民黨',
+        '鄭正鈐': '國民黨', '陳永康': '國民黨', '陳玉珍': '國民黨', '陳菁徽': '國民黨',
+        '陳雪生': '國民黨', '韓國瑜': '國民黨', '顏寬恒': '國民黨', '馬文君': '國民黨',
+        '魯明哲': '國民黨', '黃仁': '國民黨', '黃健豪': '國民黨', '黃建賓': '國民黨',
+        
+        # 民眾黨籍立委
+        '劉書彬': '民眾黨', '吳春城': '民眾黨', '張啓楷': '民眾黨', '林國成': '民眾黨',
+        '林憶君': '民眾黨', '陳昭姿': '民眾黨', '麥玉珍': '民眾黨', '黃國昌': '民眾黨',
+        '黃珊珊': '民眾黨',
+        
+        # 無黨籍立委
+        '陳超明': '無黨籍', '高金素梅': '無黨籍'
+    }
+    
+    # 初始化計數器
+    party_counts = {
+        '民進黨': 0,
+        '國民黨': 0,
+        '民眾黨': 0,
+        '無黨籍': 0,
+        '其他': 0
+    }
+    
+    # 提取並標準化人名
+    names = extract_names(names_str)
+    
+    # 計算各黨籍人數
+    for name in names:
+        if name in legislators:
+            party = legislators[name]
+            party_counts[party] += 1
+        else:
+            party_counts['其他'] += 1
+            
+    # 移除計數為0的政黨
+    return {k: v for k, v in party_counts.items() if v > 0}
+
+def get_party_info(proposer: str, org: str = None) -> dict:
+    """從提案人或提案機關資訊中獲取政黨資訊
     
     Args:
         proposer: 提案人資訊
+        org: 提案機關資訊
         
     Returns:
-        tuple: (政黨類別, 政黨名稱)
+        dict: 包含標籤類別和各黨人數統計的字典
     """
-    if not proposer:
-        return 'unknown', ''
-        
-    # 政黨對照表
-    parties = {
-        '國民黨': ('kmt', '中國國民黨'),
-        '民進黨': ('dpp', '民主進步黨'),
-        '民眾黨': ('tpp', '台灣民眾黨'),
-        '時代力量': ('npp', '時代力量'),
-        '基進黨': ('npp', '台灣基進'),
-        '新黨': ('npp', '新黨')
+    result = {
+        'tag_class': 'unknown-tag',
+        'tag_name': '',
+        'proposer_parties': {},
+        'cosignatory_parties': {}
     }
     
-    for key, (party_class, party_name) in parties.items():
-        if key in proposer:
-            return party_class, party_name
+    # 如果是行政院或黨團提案
+    if org:
+        if '行政院' in org:
+            result['tag_class'] = 'org-tag'
+            result['tag_name'] = '行政院'
+        elif '民主進步黨' in org or '民進黨' in org:
+            result['tag_class'] = 'dpp-tag'
+            result['tag_name'] = '民進黨黨團'
+        elif '中國國民黨' in org or '國民黨' in org:
+            result['tag_class'] = 'kmt-tag'
+            result['tag_name'] = '國民黨黨團'
+        elif '台灣民眾黨' in org or '民眾黨' in org:
+            result['tag_class'] = 'tpp-tag'
+            result['tag_name'] = '民眾黨黨團'
+        elif '時代力量' in org:
+            result['tag_class'] = 'npp-tag'
+            result['tag_name'] = '時代力量黨團'
+        elif '台灣基進' in org:
+            result['tag_class'] = 'other-tag'
+            result['tag_name'] = '台灣基進黨團'
+        return result
+        
+    if not proposer:
+        return result
+        
+    # 統計提案人政黨分布
+    result['proposer_parties'] = count_party_members(proposer)
+    
+    # 根據最多數的政黨設定標籤
+    if result['proposer_parties']:
+        max_party = max(result['proposer_parties'].items(), key=lambda x: x[1])[0]
+        if max_party == '民進黨':
+            result['tag_class'] = 'dpp-tag'
+            result['tag_name'] = '民進黨'
+        elif max_party == '國民黨':
+            result['tag_class'] = 'kmt-tag'
+            result['tag_name'] = '國民黨'
+        elif max_party == '民眾黨':
+            result['tag_class'] = 'tpp-tag'
+            result['tag_name'] = '民眾黨'
+        elif max_party == '無黨籍':
+            result['tag_class'] = 'other-tag'
+            result['tag_name'] = '無黨籍'
             
-    return 'unknown', ''
+    return result
 
 def get_bill_type(bill_name: str) -> str:
     """判斷法案類型
@@ -374,7 +560,158 @@ def home():
     finally:
         db.close()
 
-@app.route('/search')
+def get_status_group(status: str) -> str:
+    """根據審查進度獲取分組名稱
+    
+    Args:
+        status: 審查進度
+        
+    Returns:
+        str: 分組名稱
+    """
+    if not status:
+        return '待審查'
+    if '三讀' in status:
+        return '三讀'
+    if '二讀' in status:
+        return '二讀'
+    if '一讀' in status:
+        return '一讀'
+    if '審查完畢' in status:
+        return '審查完畢'
+    if '審查' in status:
+        return '委員會審查'
+    if '退回' in status or '撤回' in status:
+        return '退回/撤回'
+    return '待審查'
+
+def get_member_info(name: str) -> dict:
+    """獲取成員的政黨資訊
+    
+    Args:
+        name: 成員姓名
+        
+    Returns:
+        dict: 包含成員姓名和政黨標籤的字典
+    """
+    # 立委黨籍對照表（第11屆）
+    legislators = {
+        # 民進黨籍立委
+        '伍麗華': '民進黨', '何欣純': '民進黨', '劉建國': '民進黨', '吳思瑤': '民進黨',
+        '吳沛憶': '民進黨', '吳琪銘': '民進黨', '吳秉叡': '民進黨', '張宏陸': '民進黨',
+        '張雅琳': '民進黨', '徐富癸': '民進黨', '李坤城': '民進黨', '李昆澤': '民進黨',
+        '李柏毅': '民進黨', '林俊憲': '民進黨', '林宜瑾': '民進黨', '林岱樺': '民進黨',
+        '林月琴': '民進黨', '林楚茵': '民進黨', '林淑芬': '民進黨', '柯建銘': '民進黨',
+        '楊曜': '民進黨', '沈伯洋': '民進黨', '沈發惠': '民進黨', '洪申翰': '民進黨',
+        '游錫堃': '民進黨', '王世堅': '民進黨', '王定宇': '民進黨', '王正旭': '民進黨',
+        '王美惠': '民進黨', '王義川': '民進黨', '羅美玲': '民進黨', '范雲': '民進黨',
+        '莊瑞雄': '民進黨', '蔡其昌': '民進黨', '蔡易餘': '民進黨', '蘇巧慧': '民進黨',
+        '許智傑': '民進黨', '賴惠員': '民進黨', '賴瑞隆': '民進黨', '邱志偉': '民進黨',
+        '邱議瑩': '民進黨', '郭國文': '民進黨', '郭昱晴': '民進黨', '鍾佳濱': '民進黨',
+        '陳亭妃': '民進黨', '陳俊宇': '民進黨', '陳冠廷': '民進黨', '陳培瑜': '民進黨',
+        '陳瑩': '民進黨', '陳秀寳': '民進黨', '陳素月': '民進黨', '黃捷': '民進黨',
+        '黃秀芳': '民進黨',
+        
+        # 國民黨籍立委
+        '丁學忠': '國民黨', '傅崐萁': '國民黨', '吳宗憲': '國民黨', '呂玉玲': '國民黨',
+        '廖偉翔': '國民黨', '廖先翔': '國民黨', '張嘉郡': '國民黨', '張智倫': '國民黨',
+        '徐巧芯': '國民黨', '徐欣瑩': '國民黨', '李彥秀': '國民黨', '林倩綺': '國民黨',
+        '林德福': '國民黨', '林思銘': '國民黨', '林沛祥': '國民黨', '柯志恩': '國民黨',
+        '楊瓊瓔': '國民黨', '江啟臣': '國民黨', '洪孟楷': '國民黨', '涂權吉': '國民黨',
+        '游顥': '國民黨', '牛煦庭': '國民黨', '王育敏': '國民黨', '王鴻薇': '國民黨',
+        '盧縣一': '國民黨', '羅廷瑋': '國民黨', '羅明才': '國民黨', '羅智強': '國民黨',
+        '翁曉玲': '國民黨', '萬美玲': '國民黨', '葉元之': '國民黨', '葛如鈞': '國民黨',
+        '蘇清泉': '國民黨', '許宇甄': '國民黨', '謝衣鳯': '國民黨', '謝龍介': '國民黨',
+        '賴士葆': '國民黨', '邱若華': '國民黨', '邱鎮軍': '國民黨', '鄭天財': '國民黨',
+        '鄭正鈐': '國民黨', '陳永康': '國民黨', '陳玉珍': '國民黨', '陳菁徽': '國民黨',
+        '陳雪生': '國民黨', '韓國瑜': '國民黨', '顏寬恒': '國民黨', '馬文君': '國民黨',
+        '魯明哲': '國民黨', '黃仁': '國民黨', '黃健豪': '國民黨', '黃建賓': '國民黨',
+        
+        # 民眾黨籍立委
+        '劉書彬': '民眾黨', '吳春城': '民眾黨', '張啓楷': '民眾黨', '林國成': '民眾黨',
+        '林憶君': '民眾黨', '陳昭姿': '民眾黨', '麥玉珍': '民眾黨', '黃國昌': '民眾黨',
+        '黃珊珊': '民眾黨',
+        
+        # 無黨籍立委
+        '陳超明': '無黨籍', '高金素梅': '無黨籍'
+    }
+    
+    name = normalize_name(name)
+    if name in legislators:
+        party = legislators[name]
+        if party == '民進黨':
+            return {'name': name, 'party_class': 'dpp'}
+        elif party == '國民黨':
+            return {'name': name, 'party_class': 'kmt'}
+        elif party == '民眾黨':
+            return {'name': name, 'party_class': 'tpp'}
+        else:
+            return {'name': name, 'party_class': 'other'}
+    
+    return {'name': name, 'party_class': 'other'}
+
+def process_members(bill: dict) -> dict:
+    """處理法案的提案人和連署人資訊
+    
+    Args:
+        bill: 法案資訊字典
+        
+    Returns:
+        dict: 包含成員列表和政黨統計的字典
+    """
+    members = []
+    party_stats = {'民進黨': 0, '國民黨': 0, '民眾黨': 0, '其他': 0}
+    
+    # 處理提案機關
+    if bill['billOrg']:
+        if '行政院' in bill['billOrg']:
+            members.append({'name': bill['billOrg'], 'party_class': 'org'})
+            party_stats['其他'] += 1
+        else:
+            members.append({'name': bill['billOrg'], 'party_class': 'org'})
+            party_stats['其他'] += 1
+    
+    # 處理提案人
+    if bill['billProposer']:
+        proposer_names = extract_names(bill['billProposer'])
+        for name in proposer_names:
+            member_info = get_member_info(name)
+            members.append(member_info)
+            if member_info['party_class'] == 'dpp':
+                party_stats['民進黨'] += 1
+            elif member_info['party_class'] == 'kmt':
+                party_stats['國民黨'] += 1
+            elif member_info['party_class'] == 'tpp':
+                party_stats['民眾黨'] += 1
+            else:
+                party_stats['其他'] += 1
+    
+    # 處理連署人
+    if bill['billCosignatory']:
+        cosignatory_names = extract_names(bill['billCosignatory'])
+        for name in cosignatory_names:
+            member_info = get_member_info(name)
+            members.append(member_info)
+            if member_info['party_class'] == 'dpp':
+                party_stats['民進黨'] += 1
+            elif member_info['party_class'] == 'kmt':
+                party_stats['國民黨'] += 1
+            elif member_info['party_class'] == 'tpp':
+                party_stats['民眾黨'] += 1
+            else:
+                party_stats['其他'] += 1
+    
+    # 移除計數為0的政黨
+    party_stats = {k: v for k, v in party_stats.items() if v > 0}
+    total = sum(party_stats.values())
+    
+    return {
+        'members': members,
+        'party_stats': party_stats,
+        'total': total
+    }
+
+@app.route('/search', methods=['GET'])
 def search():
     """搜尋法案"""
     law_name = request.args.get('law_name', '')
@@ -431,47 +768,45 @@ def search():
         
         print(f"搜尋 '{law_name}' 找到 {len(bills)} 個法案")
         
-        # 處理搜尋結果
-        articles_dict = defaultdict(lambda: {'bills': [], 'bills_count': 0})
-        
-        for bill in bills:
-            print(f"處理法案: {bill['billName']}")
-            # 提取條號
-            articles = extract_article_numbers(bill['billName'])
-            
-            # 處理政黨資訊
-            if bill['billOrg']:
-                bill['party_class'] = 'org-tag'
-            else:
-                party_class, party_name = get_party_info(bill['billProposer'])
-                bill['party_class'] = party_class
-            
-            # 如果沒有找到條號，使用預設值
-            if not articles:
-                print(f"  未找到條號，歸入「其他修正」")
-                key = '其他修正'
-                articles_dict[key]['bills'].append(bill)
-                articles_dict[key]['bills_count'] += 1
-                continue
-            
-            # 將法案加入對應的條號
-            for article in articles:
-                key = article['full_text']
-                print(f"  加入條號 {key}")
-                articles_dict[key]['bills'].append(bill)
-                articles_dict[key]['bills_count'] += 1
-        
-        # 轉換為列表
-        articles_list = []
-        for article_text, data in articles_dict.items():
-            articles_list.append({
-                'article': article_text,
-                'bills': data['bills'],
-                'bills_count': data['bills_count']
-            })
-        
-        # 根據排序方式進行排序
         if sort_by == 'article':
+            # 按條號分組
+            articles_dict = defaultdict(lambda: {'bills': [], 'bills_count': 0})
+            
+            for bill in bills:
+                print(f"處理法案: {bill['billName']}")
+                # 提取條號
+                articles = extract_article_numbers(bill['billName'])
+                
+                # 處理提案人和連署人資訊
+                members_info = process_members(bill)
+                bill['all_members'] = members_info['members']
+                bill['party_stats'] = members_info['party_stats']
+                bill['total_members'] = members_info['total']
+                
+                # 如果沒有找到條號，使用預設值
+                if not articles:
+                    print(f"  未找到條號，歸入「其他修正」")
+                    key = '其他修正'
+                    articles_dict[key]['bills'].append(bill)
+                    articles_dict[key]['bills_count'] += 1
+                    continue
+                
+                # 將法案加入對應的條號
+                for article in articles:
+                    key = article['full_text']
+                    print(f"  加入條號 {key}")
+                    articles_dict[key]['bills'].append(bill)
+                    articles_dict[key]['bills_count'] += 1
+            
+            # 轉換為列表
+            articles_list = []
+            for article_text, data in articles_dict.items():
+                articles_list.append({
+                    'article': article_text,
+                    'bills': data['bills'],
+                    'bills_count': data['bills_count']
+                })
+            
             # 按條號排序
             def get_sort_key(article):
                 if article['article'] == '其他修正':
@@ -484,45 +819,34 @@ def search():
                 return (float('inf'), 0)
             
             articles_list.sort(key=get_sort_key)
+            
         else:
-            # 按審查進度排序
-            def get_status_priority(status):
-                if not status:
-                    return 0
-                if '三讀' in status:
-                    return 7
-                if '二讀' in status:
-                    return 6
-                if '一讀' in status:
-                    return 5
-                if '審查完畢' in status:
-                    return 4
-                if '審查' in status:
-                    return 3
-                if '退回' in status or '撤回' in status:
-                    return 1
-                return 2
+            # 按審查進度分組
+            status_groups = defaultdict(lambda: {'bills': [], 'bills_count': 0})
             
-            # 將每個條號下的法案按狀態排序
-            for article in articles_list:
-                article['bills'].sort(
-                    key=lambda x: (
-                        get_status_priority(x.get('billStatus')),
-                        int(x.get('term', 0)),
-                        int(x.get('sessionPeriod', 0)),
-                        int(x.get('sessionTimes', 0) or 0)
-                    ),
-                    reverse=True
-                )
+            for bill in bills:
+                # 處理提案人和連署人資訊
+                members_info = process_members(bill)
+                bill['all_members'] = members_info['members']
+                bill['party_stats'] = members_info['party_stats']
+                bill['total_members'] = members_info['total']
+                
+                # 獲取審查進度分組
+                status_group = get_status_group(bill.get('billStatus', ''))
+                status_groups[status_group]['bills'].append(bill)
+                status_groups[status_group]['bills_count'] += 1
             
-            # 將條號群組按其中最高優先級的法案狀態排序
-            articles_list.sort(
-                key=lambda x: max(
-                    (get_status_priority(bill.get('billStatus')) for bill in x['bills']),
-                    default=0
-                ),
-                reverse=True
-            )
+            # 轉換為列表並排序
+            articles_list = []
+            status_order = ['三讀', '二讀', '一讀', '審查完畢', '委員會審查', '待審查', '退回/撤回']
+            
+            for status in status_order:
+                if status in status_groups:
+                    articles_list.append({
+                        'article': status,
+                        'bills': status_groups[status]['bills'],
+                        'bills_count': status_groups[status]['bills_count']
+                    })
         
         return render_template('search_results.html',
                              law_name=clean_law_name(law_name),

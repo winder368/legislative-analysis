@@ -12,96 +12,40 @@
             border-left: 4px solid #007bff;
             position: relative;
         }
-        .org-tag { border-left-color: #28a745; }
-        .kmt-tag { border-left-color: #007bff; }
-        .dpp-tag { border-left-color: #28a745; }
-        .tpp-tag { border-left-color: #ffc107; }
-        .npp-tag { border-left-color: #dc3545; }
-        .unknown-tag { border-left-color: #6c757d; }
-        .article-section {
-            margin-bottom: 1rem;
-            background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        .article-header {
+        .org-tag { border-left-color: #28a745; }  /* 行政院 - 綠色 */
+        .kmt-tag { border-left-color: #007bff; }  /* 國民黨 - 藍色 */
+        .dpp-tag { border-left-color: #28a745; }  /* 民進黨 - 綠色 */
+        .tpp-tag { border-left-color: #ffc107; }  /* 民眾黨 - 黃色 */
+        .npp-tag { border-left-color: #dc3545; }  /* 時代力量 - 紅色 */
+        .unknown-tag { border-left-color: #6c757d; }  /* 未知 - 灰色 */
+        .bill-header {
+            cursor: pointer;
             padding: 1rem;
             background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            cursor: pointer;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .article-header:hover {
+        .bill-header:hover {
             background-color: #e9ecef;
         }
-        .article-content {
-            padding: 1rem;
-            display: none;
-        }
-        .article-content.show {
-            display: block;
-        }
-        .article-number {
-            font-size: 1.25rem;
-            font-weight: 500;
+        .bill-header h5 {
+            font-size: 1.1rem;
+            margin: 0;
             color: #1976D2;
         }
-        .bill-count {
-            font-size: 0.9rem;
-            color: #6c757d;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .bill-meta {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 0.5rem;
-            padding-right: 100px;
-        }
-        .bill-links {
-            margin-top: 1rem;
-            display: flex;
-            gap: 1rem;
-        }
-        .bill-links .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .status-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.25rem 0.75rem;
+        .bill-content {
+            display: none;
+            padding: 1rem;
+            background-color: #fff;
             border-radius: 0.25rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-align: center;
-            white-space: nowrap;
+            margin-bottom: 1rem;
+            border: 1px solid #dee2e6;
         }
-        /* 委員會審查前 */
-        .status-init { background-color: #E3F2FD; color: #1565C0; }
-        /* 委員會審查 */
-        .status-committee { background-color: #BBDEFB; color: #1565C0; }
-        /* 一讀 */
-        .status-first { background-color: #90CAF9; color: #1565C0; }
-        /* 二讀 */
-        .status-second { background-color: #64B5F6; color: #fff; }
-        /* 三讀 */
-        .status-third { background-color: #2196F3; color: #fff; }
-        /* 審查完畢 */
-        .status-complete { background-color: #1976D2; color: #fff; }
-        /* 退回/撤回 */
-        .status-rejected { background-color: #E57373; color: #fff; }
-        .toggle-icon {
-            transition: transform 0.3s ease;
-        }
-        .article-header[aria-expanded="true"] .toggle-icon {
-            transform: rotate(180deg);
+        .bill-content.show {
+            display: block;
         }
         .sort-buttons {
             margin-bottom: 1rem;
@@ -113,36 +57,119 @@
             background-color: #0d6efd;
             color: white;
         }
-        .nav-tabs .nav-link {
-            color: #495057;
-            border: none;
-            border-bottom: 2px solid transparent;
-            padding: 0.5rem 1rem;
-            margin-right: 1rem;
-            font-weight: 500;
+        .proposer-info {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
         }
-        .nav-tabs .nav-link:hover {
-            border-color: transparent;
-            border-bottom: 2px solid #dee2e6;
-        }
-        .nav-tabs .nav-link.active {
-            color: #0d6efd;
-            border: none;
-            border-bottom: 2px solid #0d6efd;
-            background-color: transparent;
-        }
-        .bill-type-badge {
+        .proposer-tag {
             display: inline-block;
             padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
             border-radius: 0.25rem;
             font-size: 0.875rem;
-            font-weight: 500;
-            margin-right: 0.5rem;
+            background-color: #e9ecef;
         }
-        .type-modify { background-color: #e3f2fd; color: #1565c0; }
-        .type-add { background-color: #e8f5e9; color: #2e7d32; }
-        .type-delete { background-color: #ffebee; color: #c62828; }
-        .type-abolish { background-color: #263238; color: #ffffff; }
+        .proposer-tag.org-tag {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .proposer-tag.kmt-tag {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .proposer-tag.dpp-tag {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .proposer-tag.tpp-tag {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .proposer-tag.npp-tag {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .proposer-tag.unknown-tag {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        .bill-meta {
+            margin-top: 1rem;
+        }
+        .bill-info {
+            width: 100%;
+        }
+        .party-stats {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+        }
+        .party-distribution {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            height: 2rem;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .party-bar {
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            padding: 0 0.5rem;
+        }
+        .party-bar.dpp { background-color: #28a745; }
+        .party-bar.kmt { background-color: #007bff; }
+        .party-bar.tpp { background-color: #ffc107; color: #000; }
+        .party-bar.other { background-color: #6c757d; }
+        .party-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+            font-size: 0.875rem;
+        }
+        .legend-color {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            margin-right: 0.25rem;
+        }
+        .members-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .members-list h6 {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+        .member-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        .member-tag.dpp { background-color: #d4edda; color: #155724; }
+        .member-tag.kmt { background-color: #cce5ff; color: #004085; }
+        .member-tag.tpp { background-color: #fff3cd; color: #856404; }
+        .member-tag.other { background-color: #e9ecef; color: #6c757d; }
     </style>
 </head>
 <body>
@@ -156,189 +183,180 @@
 
         <h1 class="mb-4">{{ law_name }}</h1>
 
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <p class="text-muted mb-0">共找到 {{ total }} 筆相關法案</p>
+            <div class="sort-buttons">
+                <a href="?law_name={{ law_name }}&term={{ request.args.get('term', '') }}&sort_by=article" 
+                   class="btn btn-outline-primary {% if sort_by == 'article' %}active{% endif %}">
+                    <i class="bi bi-sort-numeric-down"></i> 依條號排序
+                </a>
+                <a href="?law_name={{ law_name }}&term={{ request.args.get('term', '') }}&sort_by=status" 
+                   class="btn btn-outline-primary {% if sort_by == 'status' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i> 依審查進度排序
+                </a>
+            </div>
+        </div>
+
         {% if message %}
             <div class="alert alert-info">{{ message }}</div>
         {% else %}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <p class="text-muted mb-0">共找到 {{ total }} 筆相關法案</p>
-                <div class="sort-buttons">
-                    <form id="sortForm" method="GET" class="d-inline">
-                        <input type="hidden" name="law_name" value="{{ law_name }}">
-                        <input type="hidden" name="term" value="{{ request.args.get('term', '') }}">
-                        <button type="button" class="btn btn-outline-primary {% if sort_by == 'article' %}active{% endif %}" data-sort="article">
-                            <i class="bi bi-sort-numeric-down"></i> 依條號排序
-                        </button>
-                        <button type="button" class="btn btn-outline-primary {% if sort_by == 'status' %}active{% endif %}" data-sort="status">
-                            <i class="bi bi-sort-down"></i> 依審查進度排序
-                        </button>
-                    </form>
+            {% for article in articles %}
+                <div class="bill-header" onclick="toggleContent('{{ 'article' if sort_by == 'article' else 'status' }}-{{ loop.index }}')">
+                    <div>
+                        <h5 class="mb-0">
+                            {% if sort_by == 'status' %}
+                                {{ article.article }}
+                            {% else %}
+                                {{ article.article }}
+                            {% endif %}
+                        </h5>
+                        <small class="text-muted">{{ article.bills_count }} 個相關法案</small>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
                 </div>
-            </div>
-
-            <ul class="nav nav-tabs mb-4" id="billTypeTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
-                        全部
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="modify-tab" data-bs-toggle="tab" data-bs-target="#modify" type="button" role="tab">
-                        修正條文
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab">
-                        增訂條文
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="delete-tab" data-bs-toggle="tab" data-bs-target="#delete" type="button" role="tab">
-                        刪除條文
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="abolish-tab" data-bs-toggle="tab" data-bs-target="#abolish" type="button" role="tab">
-                        廢止條文
-                    </button>
-                </li>
-            </ul>
-
-            <div class="tab-content" id="billTypeContent">
-                <div class="tab-pane fade show active" id="all" role="tabpanel">
-                    {% for article in articles %}
-                        <div class="article-section">
-                            <div class="article-header" role="button" aria-expanded="false" aria-controls="article-{{ loop.index }}">
-                                <div class="article-number">
-                                    {% if article.article == '其他修正' %}
-                                        其他修正
-                                    {% else %}
-                                        {{ article.article }}
+                <div id="{{ 'article' if sort_by == 'article' else 'status' }}-{{ loop.index }}" class="bill-content">
+                    {% for bill in article.bills %}
+                        <div class="card bill-card {{ bill.party_class }}">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">
+                                    {% set bill_type = get_bill_type(bill.billName) %}
+                                    {% if bill_type == 'modify' %}
+                                        <span class="bill-type-badge type-modify">修正</span>
+                                    {% elif bill_type == 'add' %}
+                                        <span class="bill-type-badge type-add">增訂</span>
+                                    {% elif bill_type == 'delete' %}
+                                        <span class="bill-type-badge type-delete">刪除</span>
+                                    {% elif bill_type == 'abolish' %}
+                                        <span class="bill-type-badge type-abolish">廢止</span>
                                     {% endif %}
-                                </div>
-                                <div class="bill-count">
-                                    {{ article.bills_count }} 筆修正案
-                                    <i class="bi bi-chevron-down toggle-icon"></i>
-                                </div>
-                            </div>
-                            <div id="article-{{ loop.index }}" class="article-content">
-                                {% for bill in article.bills %}
-                                    <div class="card bill-card {{ bill.party_class }}-tag" 
-                                         data-bill-type="{{ get_bill_type(bill.billName) }}">
-                                        <div class="card-body">
-                                            {% if bill.billStatus %}
-                                                {% if '退回' in bill.billStatus or '撤回' in bill.billStatus %}
-                                                    <span class="status-badge status-rejected">{{ bill.billStatus }}</span>
-                                                {% elif '三讀' in bill.billStatus %}
-                                                    <span class="status-badge status-third">{{ bill.billStatus }}</span>
-                                                {% elif '二讀' in bill.billStatus %}
-                                                    <span class="status-badge status-second">{{ bill.billStatus }}</span>
-                                                {% elif '一讀' in bill.billStatus %}
-                                                    <span class="status-badge status-first">{{ bill.billStatus }}</span>
-                                                {% elif '審查完畢' in bill.billStatus %}
-                                                    <span class="status-badge status-complete">{{ bill.billStatus }}</span>
-                                                {% elif '審查' in bill.billStatus %}
-                                                    <span class="status-badge status-committee">{{ bill.billStatus }}</span>
-                                                {% else %}
-                                                    <span class="status-badge status-init">{{ bill.billStatus }}</span>
-                                                {% endif %}
-                                            {% else %}
-                                                <span class="status-badge status-init">待審查</span>
+                                    {{ bill.billName }}
+                                </h3>
+                                
+                                {% if sort_by == 'article' %}
+                                    {% if bill.billStatus %}
+                                        {% if '退回' in bill.billStatus or '撤回' in bill.billStatus %}
+                                            <span class="status-badge status-returned">{{ bill.billStatus }}</span>
+                                        {% elif '三讀' in bill.billStatus %}
+                                            <span class="status-badge status-3rd">{{ bill.billStatus }}</span>
+                                        {% elif '二讀' in bill.billStatus %}
+                                            <span class="status-badge status-2nd">{{ bill.billStatus }}</span>
+                                        {% elif '一讀' in bill.billStatus %}
+                                            <span class="status-badge status-1st">{{ bill.billStatus }}</span>
+                                        {% elif '審查' in bill.billStatus %}
+                                            <span class="status-badge status-review">{{ bill.billStatus }}</span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">{{ bill.billStatus }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="status-badge status-pending">待審查</span>
+                                    {% endif %}
+                                {% endif %}
+
+                                <div class="bill-meta">
+                                    <div class="bill-info">
+                                        <!-- 基本資訊 -->
+                                        <div class="mb-3">
+                                            <strong>屆期：</strong>第 {{ bill.term }} 屆
+                                            第 {{ bill.sessionPeriod }} 期
+                                            {% if bill.sessionTimes %}
+                                            第 {{ bill.sessionTimes }} 次會議
                                             {% endif %}
+                                            <br>
+                                            <strong>議案編號：</strong>{{ bill.billNo }}
+                                        </div>
 
-                                            <h3 class="h5 card-title">
-                                                {% set bill_type = get_bill_type(bill.billName) %}
-                                                {% if bill_type == 'modify' %}
-                                                    <span class="bill-type-badge type-modify">修正</span>
-                                                {% elif bill_type == 'add' %}
-                                                    <span class="bill-type-badge type-add">增訂</span>
-                                                {% elif bill_type == 'delete' %}
-                                                    <span class="bill-type-badge type-delete">刪除</span>
-                                                {% elif bill_type == 'abolish' %}
-                                                    <span class="bill-type-badge type-abolish">廢止</span>
+                                        <!-- 提案人和連署人統計 -->
+                                        <div class="party-stats">
+                                            <h6>提案人與連署人政黨分布</h6>
+                                            <!-- 視覺化政黨分布 -->
+                                            <div class="party-distribution">
+                                                {% set total = bill.total_members %}
+                                                {% if total > 0 %}
+                                                    {% if bill.party_stats.民進黨 %}
+                                                    <div class="party-bar dpp" style="width: {{ (bill.party_stats.民進黨 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.民進黨 }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if bill.party_stats.國民黨 %}
+                                                    <div class="party-bar kmt" style="width: {{ (bill.party_stats.國民黨 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.國民黨 }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if bill.party_stats.民眾黨 %}
+                                                    <div class="party-bar tpp" style="width: {{ (bill.party_stats.民眾黨 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.民眾黨 }}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if bill.party_stats.其他 %}
+                                                    <div class="party-bar other" style="width: {{ (bill.party_stats.其他 / total * 100) | round }}%">
+                                                        {{ bill.party_stats.其他 }}
+                                                    </div>
+                                                    {% endif %}
                                                 {% endif %}
-                                                {{ bill.billName }}
-                                            </h3>
-                                            <div class="bill-meta">
-                                                <span class="me-3">議案編號：{{ bill.billNo }}</span>
-                                                <span class="me-3">提案人：{{ bill.billProposer or '無' }}</span>
-                                                <span class="me-3">提案機關：{{ bill.billOrg or '無' }}</span>
-                                                <span class="me-3">屆期：{{ bill.term }}屆</span>
-                                                <span>會期：{{ bill.sessionPeriod }}期{{ bill.sessionTimes }}次</span>
                                             </div>
-
-                                            <div class="bill-links">
-                                                {% if bill.pdfUrl %}
-                                                    <a href="{{ bill.pdfUrl }}" target="_blank" class="btn btn-primary">
-                                                        <i class="bi bi-file-pdf"></i>
-                                                        下載 PDF
-                                                    </a>
-                                                {% endif %}
-                                                {% if bill.docUrl %}
-                                                    <a href="{{ bill.docUrl }}" target="_blank" class="btn btn-success">
-                                                        <i class="bi bi-file-text"></i>
-                                                        下載 DOC
-                                                    </a>
-                                                {% endif %}
+                                            
+                                            <!-- 圖例 -->
+                                            <div class="party-legend">
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #28a745;"></div>
+                                                    <span>民進黨</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #007bff;"></div>
+                                                    <span>國民黨</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #ffc107;"></div>
+                                                    <span>民眾黨</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #6c757d;"></div>
+                                                    <span>其他</span>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <!-- 提案人和連署人列表 -->
+                                        <div class="members-list">
+                                            <h6>提案人與連署人</h6>
+                                            {% for member in bill.all_members %}
+                                                <span class="member-tag {{ member.party_class }}">{{ member.name }}</span>
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- 下載按鈕 -->
+                                        <div class="mt-3">
+                                            {% if bill.pdfUrl %}
+                                                <a href="{{ bill.pdfUrl }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="bi bi-file-pdf"></i> 查看 PDF
+                                                </a>
+                                            {% endif %}
+                                            {% if bill.docUrl %}
+                                                <a href="{{ bill.docUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-file-text"></i> 下載 DOC
+                                                </a>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                {% endfor %}
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
-            </div>
+            {% endfor %}
         {% endif %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 為所有條號標題添加點擊事件
-            document.querySelectorAll('.article-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    // 切換展開/收合狀態
-                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                    this.setAttribute('aria-expanded', !isExpanded);
-                    
-                    // 切換內容顯示/隱藏
-                    const content = this.nextElementSibling;
-                    content.classList.toggle('show');
-                });
-            });
-
-            // 為排序按鈕添加點擊事件
-            document.querySelectorAll('.sort-buttons button').forEach(button => {
-                button.addEventListener('click', function() {
-                    const sortBy = this.getAttribute('data-sort');
-                    const form = document.getElementById('sortForm');
-                    const currentUrl = new URL(window.location.href);
-                    currentUrl.searchParams.set('sort_by', sortBy);
-                    window.location.href = currentUrl.toString();
-                });
-            });
-
-            // 處理分類標籤切換
-            document.querySelectorAll('#billTypeTabs .nav-link').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const type = this.id.replace('-tab', '');
-                    document.querySelectorAll('.bill-card').forEach(card => {
-                        if (type === 'all' || card.getAttribute('data-bill-type') === type) {
-                            card.closest('.article-section').style.display = 'block';
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                            // 如果該條號下所有法案都被隱藏，則隱藏整個條號區塊
-                            const articleSection = card.closest('.article-section');
-                            const visibleCards = articleSection.querySelectorAll('.bill-card[style="display: block;"]');
-                            if (visibleCards.length === 0) {
-                                articleSection.style.display = 'none';
-                            }
-                        }
-                    });
-                });
-            });
-        });
+        function toggleContent(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.bi');
+            
+            content.classList.toggle('show');
+            icon.classList.toggle('bi-chevron-down');
+            icon.classList.toggle('bi-chevron-up');
+        }
     </script>
 </body>
 </html> 

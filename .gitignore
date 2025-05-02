@@ -4,17 +4,28 @@ __pycache__/
 *$py.class
 *.so
 .Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 .env
 .venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
-
-# Backup files
-data/*_backup_*.json
-!data/bills.db
 
 # IDE
 .idea/
@@ -22,18 +33,28 @@ data/*_backup_*.json
 *.swp
 *.swo
 
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
 # OS
 .DS_Store
+Thumbs.db
+
+# Backup files
+data/*_backup_*.json
+!data/bills.db
+
+# OS
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# 資料庫
-*.db
-*.sqlite3
 
 # Project specific
 data/*.db
