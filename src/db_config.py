@@ -12,7 +12,7 @@ if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
 
 # 如果沒有設定環境變數，使用 SQLite（用於本地開發）
 if not DATABASE_URL:
-    DATABASE_URL = 'sqlite:///bills.db'
+    DATABASE_URL = 'sqlite:///data/bills.db'
 
 # 建立資料庫引擎
 engine = create_engine(DATABASE_URL)

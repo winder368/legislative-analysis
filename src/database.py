@@ -29,7 +29,7 @@ class Database:
         """創建資料表"""
         cursor = self.conn.cursor()
         
-        # 建立法案資料表
+        # 建立法案資料表 (添加 meetingTimes 欄位)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS bills (
             billNo TEXT,
@@ -40,9 +40,12 @@ class Database:
             term TEXT,
             sessionPeriod TEXT,
             sessionTimes TEXT,
+            meetingTimes TEXT,
             billStatus TEXT,
             pdfUrl TEXT,
             docUrl TEXT,
+            page_number INTEGER,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (term, billNo)
         )
         """)
@@ -57,9 +60,36 @@ class Database:
         )
         """)
         
+        # 檢查bills表中是否有必要的欄位，若無則添加
+        cursor.execute("PRAGMA table_info(bills)")
+        columns = [col['name'] for col in cursor.fetchall()]
+        
+        if 'meetingTimes' not in columns:
+            try:
+                cursor.execute("ALTER TABLE bills ADD COLUMN meetingTimes TEXT")
+                print("已添加meetingTimes欄位到bills表")
+            except Exception as e:
+                print(f"添加meetingTimes欄位時出錯: {e}")
+        
+        if 'page_number' not in columns:
+            try:
+                cursor.execute("ALTER TABLE bills ADD COLUMN page_number INTEGER")
+                print("已添加page_number欄位到bills表")
+            except Exception as e:
+                print(f"添加page_number欄位時出錯: {e}")
+        
+        # 檢查bills表中是否有updated_at欄位，若無則添加
+        if 'updated_at' not in columns:
+            try:
+                cursor.execute("ALTER TABLE bills ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+                print("已添加updated_at欄位到bills表")
+            except Exception as e:
+                print(f"添加updated_at欄位時出錯: {e}")
+        
         # 建立索引以加速查詢
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_name ON bills(billName)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_term_session ON bills(term, sessionPeriod)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_bills_page ON bills(page_number)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_name ON legislators(name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_legislators_term ON legislators(term)")
         
@@ -83,24 +113,32 @@ class Database:
             return row['term'], row['sessionPeriod']
         return None
     
-    def save_bills(self, bills: List[Dict]):
+    def save_bills(self, bills: List[Dict], page_number: int = None):
         """儲存法案資料
         
         Args:
             bills: 法案資料列表
+            page_number: 資料來源頁碼，如果提供則儲存到資料庫
         """
         cursor = self.conn.cursor()
         
+        # 檢查表結構
+        cursor.execute("PRAGMA table_info(bills)")
+        columns = {col['name']: col for col in cursor.fetchall()}
+        
         for bill in bills:
             try:
-                cursor.execute("""
+                # 建立插入語句
+                sql = """
                 INSERT OR REPLACE INTO bills (
                     term, sessionPeriod, sessionTimes, meetingTimes,
                     billNo, billName, billOrg, billProposer,
                     billCosignatory, billStatus, pdfUrl, docUrl,
-                    updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                """, (
+                    page_number, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """
+                
+                params = (
                     bill.get('term'),
                     bill.get('sessionPeriod'),
                     bill.get('sessionTimes'),
@@ -112,8 +150,12 @@ class Database:
                     bill.get('billCosignatory'),
                     bill.get('billStatus'),
                     bill.get('pdfUrl'),
-                    bill.get('docUrl')
-                ))
+                    bill.get('docUrl'),
+                    page_number
+                )
+                
+                cursor.execute(sql, params)
+                
             except sqlite3.Error as e:
                 print(f"儲存提案時發生錯誤: {e}")
                 print(f"提案資料: {json.dumps(bill, ensure_ascii=False)}")

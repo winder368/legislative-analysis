@@ -41,7 +41,7 @@ def download_historical_legislators():
     
     try:
         # 連接到資料庫
-        conn = sqlite3.connect('legislative.db')
+        conn = sqlite3.connect('data/legislative.db')
         cursor = conn.cursor()
         
         # 建立資料表

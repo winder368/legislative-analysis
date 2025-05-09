@@ -43,7 +43,7 @@ def download_legislators():
         print(json.dumps(data, indent=2, ensure_ascii=False))
         
         # 連接到資料庫
-        conn = sqlite3.connect('legislative.db')
+        conn = sqlite3.connect('data/legislative.db')
         cursor = conn.cursor()
         
         # 建立資料表
