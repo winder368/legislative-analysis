@@ -1344,29 +1344,6 @@ def home():
                                         mime='text/csv',
                                     )
                     
-            with tab4:
-                # 4. 列出連署的法案，依進度排列
-                st.subheader("連署法案列表 (依審查進度排序)")
-                
-                if cosign_results:
-                    # 按審查進度分組
-                    status_groups = defaultdict(list)
-                    for bill in cosign_results:
-                        status = get_status_group(bill.get('billStatus', ''))
-                        status_groups[status].append(bill)
-                    
-                    # 顯示審查進度分組結果
-                    status_order = ['三讀', '二讀', '一讀', '審查完畢', '委員會審查', '待審查', '退回/撤回']
-                    
-                    for status in status_order:
-                        if status in status_groups:
-                            with st.expander(f"{status} ({len(status_groups[status])}件)", expanded=status in ['三讀', '二讀']):
-                                for bill in status_groups[status]:
-                                    st.write(f"**{bill['billName']}**")
-                                    st.markdown(display_status_badge(bill.get('billStatus', '')), unsafe_allow_html=True)
-                                    st.divider()
-                else:
-                    st.warning("沒有找到相關連署數據")
     
     except Exception as e:
         st.error(f"發生錯誤: {str(e)}")
@@ -1914,73 +1891,25 @@ def legislator_page():
                 # 4. 列出連署的法案，依進度排列
                 st.subheader("連署法案列表 (依審查進度排序)")
                 
-                if entity_type != 'government' and entity_type != 'party_group':  # 政府機關和黨團沒有連署
-                    # 查詢更詳細的法案信息
-                    cosign_detailed_query = f"""
-                    SELECT billNo, billName, billOrg, billProposer, billCosignatory, 
-                           term, sessionPeriod, billStatus, pdfUrl, docUrl
-                    FROM bills
-                    WHERE term = '{term}'
-                    {session_filter}
-                    {cosign_condition}
-                    """
+                if cosign_results:
+                    # 按審查進度分組
+                    status_groups = defaultdict(list)
+                    for bill in cosign_results:
+                        status = get_status_group(bill.get('billStatus', ''))
+                        status_groups[status].append(bill)
                     
-                    cursor.execute(cosign_detailed_query)
-                    cosign_results = [dict(row) for row in cursor.fetchall()]
+                    # 顯示審查進度分組結果
+                    status_order = ['三讀', '二讀', '一讀', '審查完畢', '委員會審查', '待審查', '退回/撤回']
                     
-                    if cosign_results:
-                        # 按審查進度分組
-                        status_groups = defaultdict(list)
-                        for bill in cosign_results:
-                            # 處理提案人和連署人資訊
-                            bill['party_stats'] = process_all_members(bill)
-                            
-                            status = get_status_group(bill.get('billStatus', ''))
-                            status_groups[status].append(bill)
-                        
-                        # 顯示審查進度分組結果
-                        status_order = ['三讀', '二讀', '一讀', '審查完畢', '委員會審查', '待審查', '退回/撤回']
-                        
-                        for status in status_order:
-                            if status in status_groups:
-                                with st.expander(f"### {status} ({len(status_groups[status])}件)", expanded=status in ['三讀', '二讀']):
-                                    for bill in status_groups[status]:
-                                        col1, col2 = st.columns([4, 1])
-                                        with col1:
-                                            st.markdown(f"**{bill['billName']}**")
-                                            
-                                            # 修改提案人顯示方式：使用帶有政黨顏色的委員名稱
-                                            if bill['billProposer']:
-                                                st.markdown(f"**提案人**: {format_members_with_party_colors(bill['billProposer'])}", unsafe_allow_html=True)
-                                            elif bill['billOrg']:
-                                                st.write(f"**提案人**: {bill['billOrg']}")
-                                            else:
-                                                st.write(f"**提案人**: 無資料")
-                                            
-                                            # 添加連署人信息，使用帶有政黨顏色的委員名稱
-                                            if bill['billCosignatory']:
-                                                st.markdown(f"**連署人**: {format_members_with_party_colors(bill['billCosignatory'])}", unsafe_allow_html=True)
-                                            
-                                            st.write(f"**提案日期**: 第{bill['term']}屆第{bill['sessionPeriod']}會期")
-                                            
-                                            # 顯示政黨統計（使用標籤函數）
-                                            st.markdown(display_party_tags(bill['party_stats']), unsafe_allow_html=True)
-                                            display_party_ratio(bill['party_stats'])
-                                        
-                                        with col2:
-                                            # 顯示法案狀態標籤
-                                            st.markdown(display_status_badge(bill.get('billStatus', '')), unsafe_allow_html=True)
-                                            
-                                            if bill['pdfUrl']:
-                                                st.markdown(f"[<span style='font-size: 18px;'>PDF</span>]({bill['pdfUrl']})", unsafe_allow_html=True)
-                                            if bill['docUrl']:
-                                                st.markdown(f"[<span style='font-size: 18px;'>DOC</span>]({bill['docUrl']})", unsafe_allow_html=True)
-                                        st.divider()
-                        
-                    else:
-                        st.warning("沒有找到相關連署數據")
+                    for status in status_order:
+                        if status in status_groups:
+                            with st.expander(f"{status} ({len(status_groups[status])}件)", expanded=status in ['三讀', '二讀']):
+                                for bill in status_groups[status]:
+                                    st.write(f"**{bill['billName']}**")
+                                    st.markdown(display_status_badge(bill.get('billStatus', '')), unsafe_allow_html=True)
+                                    st.divider()
                 else:
-                    st.info(f"{legislator} 沒有連署法案")
+                    st.warning("沒有找到相關連署數據")
     
     except Exception as e:
         st.error(f"發生錯誤: {str(e)}")
